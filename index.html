@@ -133,7 +133,7 @@
             color: #aaa;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 12px;
             background: #140306;
@@ -144,7 +144,7 @@
             font-size: 0.95rem;
         }
 
-        input:focus {
+        input:focus, select:focus {
             border-color: #ff334b;
             box-shadow: 0 0 8px rgba(255, 51, 75, 0.4);
         }
@@ -538,6 +538,44 @@
             font-weight: bold;
         }
 
+        /* WITHDRAWAL CARD BOX */
+        .withdraw-card {
+            background: #180509;
+            border: 1px solid #3d0d14;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .withdraw-card h4 {
+            color: #11cc55;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .withdraw-card p {
+            font-size: 0.78rem;
+            color: #bbb;
+            line-height: 1.3;
+        }
+
+        .rate-badge {
+            background: #2b080f;
+            color: #ff334b;
+            border: 1px dashed #ff334b;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
         /* PROFILE STYLES */
         .profile-content {
             display: flex;
@@ -631,7 +669,7 @@
 
         <!-- Marquee Text -->
         <div class="marquee-box">
-            <div class="marquee-text" id="marquee-el">Your withdrawal process may take 2 to 3 days to complete.</div>
+            <div class="marquee-text" id="marquee-el">Your withdrawal process may take 2 to 3 days to complete. Minimum withdrawal: 20,000 Coins.</div>
         </div>
 
         <div class="dashboard-content">
@@ -680,7 +718,7 @@
                 <li onclick="toggleSidebar(); showPage('lottery-page');">🎡 Lottery Spin</li>
                 <li onclick="toggleSidebar(); alert('Tournament is under maintenance!');">🏆 Tournament (Maintenance)</li>
                 <li onclick="toggleSidebar(); showPage('refer-page');">🤝 Referral Program</li>
-                <li onclick="toggleSidebar(); alert('Insufficient balance to withdraw.');">💵 Withdraw</li>
+                <li onclick="toggleSidebar(); showPage('withdraw-page');">💵 Withdraw</li>
                 <li onclick="toggleSidebar(); alert('Deposit option coming soon.');">💳 Deposit</li>
                 <li onclick="toggleSidebar(); showPage('support-page');">🛠️ Support & Rules</li>
                 <li onclick="logout()" style="color: #ff334b; border-top: 1px solid #333; margin-top: 15px;">🚪 Logout</li>
@@ -772,7 +810,52 @@
         </div>
     </div>
 
-    <!-- === PAGE 8: SUPPORT & RULES === -->
+    <!-- === PAGE 8: WITHDRAWAL PAGE (FAUCETPAY & LOCAL MOBILE RECHARGE) === -->
+    <div id="withdraw-page" class="page">
+        <div class="sub-header">
+            <span class="back-icon" onclick="showPage('dashboard-page')">←</span>
+            <h3>WITHDRAW EARNINGS</h3>
+        </div>
+
+        <!-- 1. FAUCETPAY CRYPTO SECTION -->
+        <div class="withdraw-card">
+            <h4>🌐 FaucetPay Crypto Transfer</h4>
+            <div class="rate-badge">20,000 Coins = $0.20 USD (20 Cents)</div>
+            <p>For international and global users. Payment will be disbursed directly to your FaucetPay account in any supported cryptocurrency.</p>
+            <div class="input-group" style="margin-top:5px;">
+                <label>FaucetPay Account Email:</label>
+                <input type="email" id="faucetpay-email-input" placeholder="enter registered FaucetPay email">
+            </div>
+            <button class="neon-btn green-btn" onclick="requestWithdraw('faucetpay')">Withdraw via FaucetPay</button>
+            <p style="font-size:0.7rem; color:#ff8896;">*Caution: Ensure you have an active FaucetPay wallet under this email address.</p>
+        </div>
+
+        <!-- 2. MOBILE RECHARGE SECTION (BANGLADESH) -->
+        <div class="withdraw-card">
+            <h4>📱 Mobile Recharge (Bangladesh)</h4>
+            <div class="rate-badge">20,000 Coins = 20 BDT (৳20 Recharge)</div>
+            <p>Select your telecom operator and enter your mobile number for direct phone balance recharge.</p>
+            
+            <div class="input-group">
+                <label>Select Mobile Operator:</label>
+                <select id="recharge-operator">
+                    <option value="Grameenphone">Grameenphone (GP)</option>
+                    <option value="Robi">Robi</option>
+                    <option value="Banglalink">Banglalink</option>
+                    <option value="Airtel">Airtel</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Mobile Number:</label>
+                <input type="tel" id="recharge-phone-input" placeholder="017XXXXXXXX">
+            </div>
+
+            <button class="neon-btn red-btn" onclick="requestWithdraw('recharge')">Request Mobile Recharge</button>
+        </div>
+    </div>
+
+    <!-- === PAGE 9: SUPPORT & RULES === -->
     <div id="support-page" class="page">
         <div class="sub-header">
             <span class="back-icon" onclick="showPage('dashboard-page')">←</span>
@@ -791,7 +874,7 @@
         </div>
     </div>
 
-    <!-- === PAGE 9: USER PROFILE PAGE === -->
+    <!-- === PAGE 10: USER PROFILE PAGE === -->
     <div id="profile-page" class="page">
         <div class="sub-header">
             <span class="back-icon" onclick="showPage('dashboard-page')">←</span>
@@ -874,6 +957,11 @@
         setupVisibilityChecker();
     };
 
+    /* === SIDEBAR TOGGLE FUNCTION === */
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+    }
+
     /* === AUTHENTICATION LOGIC WITH LOCALSTORAGE === */
     function getUsersData() {
         return JSON.parse(localStorage.getItem('crypto_app_users')) || [];
@@ -922,14 +1010,12 @@
 
         const users = getUsersData();
 
-        // Check duplicate email or username
         const isDuplicate = users.some(u => u.username === username || u.email === email);
         if (isDuplicate) {
             alert("❌ Registration Failed! This Username or Email is already registered.");
             return;
         }
 
-        // Register new user
         const newUser = { fullname, username, email, password, coins: 0 };
         users.push(newUser);
         saveUsersData(users);
@@ -947,7 +1033,6 @@
 
         const users = getUsersData();
 
-        // Find user by email or username
         const matchedUser = users.find(u => (u.username === identifier || u.email === identifier) && u.password === password);
 
         if (!matchedUser) {
@@ -959,7 +1044,6 @@
         coins = currentUser.coins || 0;
         document.getElementById('user-coins').textContent = coins + " Coins";
 
-        // Update Profile Info
         document.getElementById('prof-fullname').value = currentUser.fullname;
         document.getElementById('prof-username').value = currentUser.username;
         document.getElementById('prof-email').value = currentUser.email;
@@ -970,7 +1054,6 @@
 
     function logout() {
         if (currentUser) {
-            // Save coins before exit
             let users = getUsersData();
             let uIndex = users.findIndex(u => u.username === currentUser.username);
             if (uIndex !== -1) {
@@ -981,6 +1064,54 @@
         currentUser = null;
         toggleSidebar();
         showPage('auth-page');
+    }
+
+    /* === WITHDRAWAL SYSTEM LOGIC === */
+    function requestWithdraw(type) {
+        const MIN_WITHDRAW_COINS = 20000;
+
+        if (coins < MIN_WITHDRAW_COINS) {
+            alert(`❌ Insufficient Coins! You need at least 20,000 Coins to request a withdrawal. (Current Balance: ${coins} Coins)`);
+            return;
+        }
+
+        if (type === 'faucetpay') {
+            const email = document.getElementById('faucetpay-email-input').value.trim();
+            if (!email) {
+                alert("Please enter a valid FaucetPay registered email address.");
+                return;
+            }
+            coins -= MIN_WITHDRAW_COINS;
+            document.getElementById('user-coins').textContent = coins + " Coins";
+            updateUserBalanceInStorage();
+            alert(`🎉 Withdrawal Request Submitted!\nAmount: $0.20 USD\nTarget Email: ${email}\nStatus: Pending (Takes 2-3 Days)`);
+            document.getElementById('faucetpay-email-input').value = '';
+        } else if (type === 'recharge') {
+            const operator = document.getElementById('recharge-operator').value;
+            const phone = document.getElementById('recharge-phone-input').value.trim();
+            if (!phone || phone.length < 11) {
+                alert("Please enter a valid 11-digit mobile phone number.");
+                return;
+            }
+            coins -= MIN_WITHDRAW_COINS;
+            document.getElementById('user-coins').textContent = coins + " Coins";
+            updateUserBalanceInStorage();
+            alert(`🎉 Mobile Recharge Request Submitted!\nOperator: ${operator}\nNumber: ${phone}\nAmount: 20 BDT\nStatus: Pending (Takes 2-3 Days)`);
+            document.getElementById('recharge-phone-input').value = '';
+        }
+
+        showPage('dashboard-page');
+    }
+
+    function updateUserBalanceInStorage() {
+        if (currentUser) {
+            let users = getUsersData();
+            let uIndex = users.findIndex(u => u.username === currentUser.username);
+            if (uIndex !== -1) {
+                users[uIndex].coins = coins;
+                saveUsersData(users);
+            }
+        }
     }
 
     /* === PAGE NAVIGATION === */
@@ -1227,15 +1358,7 @@
         document.getElementById('user-coins').textContent = coins + " Coins";
         document.getElementById('ad-modal').classList.remove('active');
 
-        // Update user state in storage
-        if (currentUser) {
-            let users = getUsersData();
-            let uIndex = users.findIndex(u => u.username === currentUser.username);
-            if (uIndex !== -1) {
-                users[uIndex].coins = coins;
-                saveUsersData(users);
-            }
-        }
+        updateUserBalanceInStorage();
 
         if (currentType === 'game') {
             gameTimers[currentActiveIndex - 1] = 20 * 60;
@@ -1300,14 +1423,7 @@
             coins += winAmount;
             document.getElementById('user-coins').textContent = coins + " Coins";
 
-            if (currentUser) {
-                let users = getUsersData();
-                let uIndex = users.findIndex(u => u.username === currentUser.username);
-                if (uIndex !== -1) {
-                    users[uIndex].coins = coins;
-                    saveUsersData(users);
-                }
-            }
+            updateUserBalanceInStorage();
 
             nextSpinTime = Date.now() + (60 * 60 * 1000);
         }, 3600);
