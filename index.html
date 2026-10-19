@@ -149,6 +149,13 @@
             box-shadow: 0 0 8px rgba(255, 51, 75, 0.4);
         }
 
+        .pass-match-msg {
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-top: 2px;
+            display: none;
+        }
+
         .neon-btn {
             width: 100%;
             padding: 12px;
@@ -160,6 +167,14 @@
             color: #fff;
             margin-top: 5px;
             transition: 0.3s;
+        }
+
+        .neon-btn:disabled {
+            background: #444 !important;
+            border-color: #666 !important;
+            cursor: not-allowed;
+            box-shadow: none !important;
+            opacity: 0.6;
         }
 
         .red-btn {
@@ -571,30 +586,34 @@
             <form id="login-form" class="form-box active" onsubmit="handleLogin(event)">
                 <h2>Login Now</h2>
                 <div class="input-group">
-                    <input type="text" placeholder="Email or Username" required>
+                    <input type="text" id="login-identifier" placeholder="Email or Username" required>
                 </div>
                 <div class="input-group">
-                    <input type="password" placeholder="Password" required>
+                    <input type="password" id="login-password" placeholder="Password" required>
                 </div>
                 <button type="submit" class="neon-btn red-btn">Login</button>
             </form>
 
-            <!-- Register Form -->
+            <!-- Register Form with Live Match & Confirm Password -->
             <form id="register-form" class="form-box" onsubmit="handleRegister(event)">
                 <h2>Register Now</h2>
                 <div class="input-group">
-                    <input type="text" placeholder="Your Full Name" required>
+                    <input type="text" id="reg-fullname" placeholder="Your Full Name" required>
                 </div>
                 <div class="input-group">
-                    <input type="text" placeholder="Username" required>
+                    <input type="text" id="reg-username" placeholder="Username" required>
                 </div>
                 <div class="input-group">
-                    <input type="email" placeholder="Email Address" required>
+                    <input type="email" id="reg-email" placeholder="Email Address" required>
                 </div>
                 <div class="input-group">
-                    <input type="password" placeholder="Password" required>
+                    <input type="password" id="reg-password" placeholder="Password" oninput="checkPasswordMatch()" required>
                 </div>
-                <button type="submit" class="neon-btn green-btn">Register</button>
+                <div class="input-group">
+                    <input type="password" id="reg-confirm-password" placeholder="Confirm Password" oninput="checkPasswordMatch()" required>
+                    <span id="pass-match-msg" class="pass-match-msg"></span>
+                </div>
+                <button type="submit" id="reg-submit-btn" class="neon-btn green-btn">Register</button>
             </form>
         </div>
     </div>
@@ -785,15 +804,15 @@
             <div style="width:100%; display:flex; flex-direction:column; gap:10px;">
                 <div class="input-group">
                     <label>Full Name:</label>
-                    <input type="text" value="Arafat Rahman">
+                    <input type="text" id="prof-fullname" value="User">
                 </div>
                 <div class="input-group">
                     <label>Username:</label>
-                    <input type="text" value="arafat_pro" disabled>
+                    <input type="text" id="prof-username" value="user" disabled>
                 </div>
                 <div class="input-group">
-                    <label>Birth Date:</label>
-                    <input type="date" value="2005-01-01">
+                    <label>Email Address:</label>
+                    <input type="email" id="prof-email" value="user@mail.com" disabled>
                 </div>
                 <button class="neon-btn red-btn" onclick="alert('Profile updated successfully!'); showPage('dashboard-page');">Save Changes</button>
             </div>
@@ -820,6 +839,7 @@
     let pendingReward = 0;
     let currentType = ''; 
     let currentActiveIndex = 0;
+    let currentUser = null;
 
     let game2xUsedInRound = false;
     let task2xUsedInRound = false;
@@ -830,12 +850,10 @@
     let taskStatus = [true, true, true, true, true];
     let nextSpinTime = 0;
 
-    // AD TIMER TRACKING VARIABLES FOR STRICT 15s/30s/10s CHECKING
     let isAdRunning = false;
     let requiredAdTime = 0;
     let currentAdTimeLeft = 0;
 
-    // 8 EQUAL SLOTS LABELS FOR CSS WHEEL
     const wheelRewards = [
         { label: "Better Luck", isGolden: false },
         { label: "$0.001", isGolden: false },
@@ -856,6 +874,115 @@
         setupVisibilityChecker();
     };
 
+    /* === AUTHENTICATION LOGIC WITH LOCALSTORAGE === */
+    function getUsersData() {
+        return JSON.parse(localStorage.getItem('crypto_app_users')) || [];
+    }
+
+    function saveUsersData(users) {
+        localStorage.setItem('crypto_app_users', JSON.stringify(users));
+    }
+
+    function checkPasswordMatch() {
+        const pass = document.getElementById('reg-password').value;
+        const confirmPass = document.getElementById('reg-confirm-password').value;
+        const msgEl = document.getElementById('pass-match-msg');
+        const submitBtn = document.getElementById('reg-submit-btn');
+
+        if (confirmPass.length === 0) {
+            msgEl.style.display = 'none';
+            submitBtn.disabled = false;
+            return;
+        }
+
+        msgEl.style.display = 'block';
+        if (pass === confirmPass) {
+            msgEl.textContent = '✓ Passwords match!';
+            msgEl.style.color = '#11cc55';
+            submitBtn.disabled = false;
+        } else {
+            msgEl.textContent = '❌ Passwords do not match!';
+            msgEl.style.color = '#ff334b';
+            submitBtn.disabled = true;
+        }
+    }
+
+    function handleRegister(e) {
+        e.preventDefault();
+        const fullname = document.getElementById('reg-fullname').value.trim();
+        const username = document.getElementById('reg-username').value.trim().toLowerCase();
+        const email = document.getElementById('reg-email').value.trim().toLowerCase();
+        const password = document.getElementById('reg-password').value;
+        const confirmPassword = document.getElementById('reg-confirm-password').value;
+
+        if (password !== confirmPassword) {
+            alert("Passwords do not match!");
+            return;
+        }
+
+        const users = getUsersData();
+
+        // Check duplicate email or username
+        const isDuplicate = users.some(u => u.username === username || u.email === email);
+        if (isDuplicate) {
+            alert("❌ Registration Failed! This Username or Email is already registered.");
+            return;
+        }
+
+        // Register new user
+        const newUser = { fullname, username, email, password, coins: 0 };
+        users.push(newUser);
+        saveUsersData(users);
+
+        alert("🎉 Registration Successful! You can now log in.");
+        document.getElementById('register-form').reset();
+        document.getElementById('pass-match-msg').style.display = 'none';
+        switchTab('login');
+    }
+
+    function handleLogin(e) {
+        e.preventDefault();
+        const identifier = document.getElementById('login-identifier').value.trim().toLowerCase();
+        const password = document.getElementById('login-password').value;
+
+        const users = getUsersData();
+
+        // Find user by email or username
+        const matchedUser = users.find(u => (u.username === identifier || u.email === identifier) && u.password === password);
+
+        if (!matchedUser) {
+            alert("❌ Invalid Email/Username or Password! Please register first if you do not have an account.");
+            return;
+        }
+
+        currentUser = matchedUser;
+        coins = currentUser.coins || 0;
+        document.getElementById('user-coins').textContent = coins + " Coins";
+
+        // Update Profile Info
+        document.getElementById('prof-fullname').value = currentUser.fullname;
+        document.getElementById('prof-username').value = currentUser.username;
+        document.getElementById('prof-email').value = currentUser.email;
+
+        alert(`Welcome back, ${currentUser.fullname}!`);
+        showPage('dashboard-page');
+    }
+
+    function logout() {
+        if (currentUser) {
+            // Save coins before exit
+            let users = getUsersData();
+            let uIndex = users.findIndex(u => u.username === currentUser.username);
+            if (uIndex !== -1) {
+                users[uIndex].coins = coins;
+                saveUsersData(users);
+            }
+        }
+        currentUser = null;
+        toggleSidebar();
+        showPage('auth-page');
+    }
+
     /* === PAGE NAVIGATION === */
     function showPage(pageId) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -874,26 +1001,6 @@
             document.getElementById('register-form').classList.add('active');
             document.getElementById('login-form').classList.remove('active');
         }
-    }
-
-    function handleLogin(e) {
-        e.preventDefault();
-        showPage('dashboard-page');
-    }
-
-    function handleRegister(e) {
-        e.preventDefault();
-        alert("Registration Successful!");
-        showPage('dashboard-page');
-    }
-
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('active');
-    }
-
-    function logout() {
-        toggleSidebar();
-        showPage('auth-page');
     }
 
     /* === GLOBAL TIMER LOOP === */
@@ -1048,7 +1155,6 @@
         currentType = type;
         currentActiveIndex = index;
 
-        // Open Direct Link
         window.open(DIRECT_AD_LINK, '_blank');
 
         const modal = document.getElementById('ad-modal');
@@ -1089,11 +1195,9 @@
         }, 1000);
     }
 
-    /* DETECT EARLY RETURN BEFORE TIMER FINISHES */
     function setupVisibilityChecker() {
         document.addEventListener("visibilitychange", function() {
             if (!document.hidden && isAdRunning) {
-                // If user returns while timer is still running
                 if (currentAdTimeLeft > 0) {
                     clearInterval(adInterval);
                     isAdRunning = false;
@@ -1122,6 +1226,16 @@
         coins += pendingReward;
         document.getElementById('user-coins').textContent = coins + " Coins";
         document.getElementById('ad-modal').classList.remove('active');
+
+        // Update user state in storage
+        if (currentUser) {
+            let users = getUsersData();
+            let uIndex = users.findIndex(u => u.username === currentUser.username);
+            if (uIndex !== -1) {
+                users[uIndex].coins = coins;
+                saveUsersData(users);
+            }
+        }
 
         if (currentType === 'game') {
             gameTimers[currentActiveIndex - 1] = 20 * 60;
@@ -1163,7 +1277,6 @@
             alert("Please wait until the 1-hour cooldown finishes.");
             return;
         }
-        // Launch 10-Second Ad Modal before Spinning
         launchAdModal(0, 'spin', 0, false, 10);
     }
 
@@ -1187,7 +1300,16 @@
             coins += winAmount;
             document.getElementById('user-coins').textContent = coins + " Coins";
 
-            nextSpinTime = Date.now() + (60 * 60 * 1000); // 1-Hour Cooldown
+            if (currentUser) {
+                let users = getUsersData();
+                let uIndex = users.findIndex(u => u.username === currentUser.username);
+                if (uIndex !== -1) {
+                    users[uIndex].coins = coins;
+                    saveUsersData(users);
+                }
+            }
+
+            nextSpinTime = Date.now() + (60 * 60 * 1000);
         }, 3600);
     }
 
