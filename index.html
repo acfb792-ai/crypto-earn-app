@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Earn Pro App</title>
+    <style>
+        /* === FULL APPLICATION STYLES (DARK NEON RED THEME) === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #050203;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* MOBILE FRAME CONTAINER */
+        .app-screen {
+            width: 100%;
+            max-width: 390px;
+            height: 100vh;
+            max-height: 750px;
+            background: linear-gradient(160deg, #120407, #070204);
+            border: 3px solid #3d0d14;
+            border-radius: 28px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 35px rgba(255, 30, 60, 0.25);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* PAGE MANAGEMENT */
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            background: #100306;
+            padding: 18px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        /* AUTHENTICATION STYLES */
+        .auth-container {
+            margin: auto 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .app-logo {
+            font-size: 1.8rem;
+            color: #ff334b;
+            text-shadow: 0 0 12px rgba(255, 51, 75, 0.6);
+            margin-bottom: 25px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            width: 100%;
+            background: #1a060a;
+            border-radius: 10px;
+            padding: 4px;
+            border: 1px solid #4a121b;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            color: #888;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .tab-btn.active {
+            background: #b31430;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(179, 20, 48, 0.5);
+        }
+
+        .form-box {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-box.active {
+            display: flex;
+        }
+
+        .form-box h2 {
+            font-size: 1.1rem;
+            color: #ddd;
+            margin-bottom: 5px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+        }
+
+        .input-group label {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #140306;
+            border: 1px solid #3d0e15;
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+            font-size: 0.95rem;
+        }
+
+        input:focus {
+            border-color: #ff334b;
+            box-shadow: 0 0 8px rgba(255, 51, 75, 0.4);
+        }
+
+        .neon-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            color: #fff;
+            margin-top: 5px;
+            transition: 0.3s;
+        }
+
+        .red-btn {
+            background: linear-gradient(135deg, #cc112f, #88091c);
+            border: 1px solid #ff334b;
+            box-shadow: 0 0 12px rgba(204, 17, 47, 0.4);
+        }
+
+        .green-btn {
+            background: linear-gradient(135deg, #11cc55, #087730);
+            border: 1px solid #33ff77;
+            box-shadow: 0 0 12px rgba(17, 204, 85, 0.4);
+        }
+
+        /* APP HEADER */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #330d13;
+            margin-bottom: 12px;
+        }
+
+        .menu-icon {
+            font-size: 1.4rem;
+            color: #ff334b;
+            cursor: pointer;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-icon img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid #ff334b;
+            cursor: pointer;
+            object-fit: cover;
+        }
+
+        /* RUNNING MARQUEE TEXT */
+        .marquee-box {
+            background: #1e0509;
+            border: 1px solid #421017;
+            border-radius: 6px;
+            padding: 6px 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .marquee-text {
+            display: inline-block;
+            font-size: 0.8rem;
+            color: #ff8896;
+            animation: marquee 12s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* DASHBOARD CARDS & GRID */
+        .dashboard-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .balance-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .card {
+            flex: 1;
+            padding: 14px 10px;
+            border-radius: 12px;
+            background: #140306;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .green-card {
+            border: 1px solid #11cc55;
+            box-shadow: inset 0 0 8px rgba(17, 204, 85, 0.2);
+        }
+
+        .red-card {
+            border: 1px solid #cc112f;
+            box-shadow: inset 0 0 8px rgba(204, 17, 47, 0.2);
+        }
+
+        .card-title {
+            font-size: 0.68rem;
+            color: #aaa;
+        }
+
+        .card-value {
+            font-size: 1.05rem;
+            font-weight: bold;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .feature-item {
+            background: #140306;
+            border: 1px solid #3d0d14;
+            border-radius: 12px;
+            padding: 16px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .feature-item:hover {
+            border-color: #ff334b;
+            background: #1c060a;
+        }
+
+        .badge {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            background: #ff334b;
+            color: #fff;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .f-icon {
+            font-size: 1.6rem;
+        }
+
+        .feature-item span:last-child {
+            font-size: 0.8rem;
+            color: #ddd;
+            font-weight: 600;
+        }
+
+        /* GAME & TASK BOX LIST */
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .list-box {
+            background: #180509;
+            border: 1px solid #3d0d14;
+            border-radius: 10px;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-box-info h4 {
+            font-size: 0.9rem;
+            color: #fff;
+        }
+
+        .list-box-info p {
+            font-size: 0.75rem;
+            color: #ffb3ba;
+        }
+
+        .sm-btn {
+            padding: 8px 14px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            color: #fff;
+            background: #cc112f;
+            border: 1px solid #ff334b;
+        }
+
+        .timer-badge {
+            font-size: 0.75rem;
+            color: #ff334b;
+            font-weight: bold;
+            background: #25080e;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px dashed #ff334b;
+        }
+
+        /* TIC-TAC-TOE BOARD */
+        .tic-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 240px;
+            height: 240px;
+            margin: 20px auto;
+        }
+
+        .cell {
+            background: #1e060b;
+            border: 2px solid #4a121b;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: #ff334b;
+        }
+
+        /* CIRCULAR CSS SPINNER WHEEL */
+        .wheel-wrapper {
+            position: relative;
+            width: 240px;
+            height: 240px;
+            margin: 20px auto;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 22px solid #11cc55;
+            z-index: 30;
+            filter: drop-shadow(0 0 6px #11cc55);
+        }
+
+        .wheel-container {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid #ff334b;
+            box-shadow: 0 0 25px rgba(255, 51, 75, 0.6);
+            position: relative;
+            overflow: hidden;
+            transition: transform 3.5s cubic-bezier(0.15, 0.85, 0.15, 1);
+            background: conic-gradient(
+                #cc112f 0deg 45deg,
+                #1e0409 45deg 90deg,
+                #cc112f 90deg 135deg,
+                #ffd700 135deg 180deg,
+                #cc112f 180deg 225deg,
+                #ffd700 225deg 270deg,
+                #cc112f 270deg 315deg,
+                #1e0409 315deg 360deg
+            );
+        }
+
+        .wheel-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: 0 0;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 4px #000;
+        }
+
+        .golden-text {
+            color: #000 !important;
+            text-shadow: 0 0 3px #fff !important;
+        }
+
+        /* SIDEBAR DRAWER MENU */
+        .sidebar {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 78%;
+            height: 100%;
+            background: #0d0204;
+            border-right: 2px solid #3d0d14;
+            padding: 20px;
+            z-index: 100;
+            transition: 0.3s ease-in-out;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .close-sidebar {
+            text-align: right;
+            font-size: 1.2rem;
+            color: #ff334b;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sidebar-menu li {
+            color: #ccc;
+            font-size: 0.88rem;
+            cursor: pointer;
+            padding: 6px 0;
+            border-bottom: 1px solid #1e060a;
+        }
+
+        .sidebar-menu li:hover {
+            color: #fff;
+            padding-left: 4px;
+        }
+
+        /* AD MODAL / OVERLAY */
+        .ad-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.93);
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .ad-modal.active {
+            display: flex;
+        }
+
+        .ad-timer-text {
+            font-size: 1.3rem;
+            color: #ff334b;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        /* PROFILE STYLES */
+        .profile-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #profile-img-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid #ff334b;
+            object-fit: cover;
+        }
+
+        .sub-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .back-icon {
+            font-size: 1.2rem;
+            color: #ff334b;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-screen">
+    
+    <!-- === PAGE 1: AUTHENTICATION (DEFAULT) === -->
+    <div id="auth-page" class="page active">
+        <div class="auth-container">
+            <h1 class="app-logo">CRYPTO EARN</h1>
+            
+            <div class="tab-buttons">
+                <button id="btn-login-tab" class="tab-btn active" onclick="switchTab('login')">Login</button>
+                <button id="btn-reg-tab" class="tab-btn" onclick="switchTab('register')">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="form-box active" onsubmit="handleLogin(event)">
+                <h2>Login Now</h2>
+                <div class="input-group">
+                    <input type="text" placeholder="Email or Username" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="neon-btn red-btn">Login</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" class="form-box" onsubmit="handleRegister(event)">
+                <h2>Register Now</h2>
+                <div class="input-group">
+                    <input type="text" placeholder="Your Full Name" required>
+                </div>
+                <div class="input-group">
+                    <input type="text" placeholder="Username" required>
+                </div>
+                <div class="input-group">
+                    <input type="email" placeholder="Email Address" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="neon-btn green-btn">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- === PAGE 2: HOME / DASHBOARD === -->
+    <div id="dashboard-page" class="page">
+        <header class="app-header">
+            <div class="menu-icon" onclick="toggleSidebar()">☰</div>
+            <div class="header-right">
+                <div class="profile-icon" onclick="showPage('profile-page')">
+                    <img id="header-avatar" src="https://i.imgur.com/6VBx3io.png" alt="Profile">
+                </div>
+            </div>
+        </header>
+
+        <!-- Marquee Text -->
+        <div class="marquee-box">
+            <div class="marquee-text" id="marquee-el">Your withdrawal process may take 2 to 3 days to complete.</div>
+        </div>
+
+        <div class="dashboard-content">
+            <!-- Balance Cards -->
+            <div class="balance-row">
+                <div class="card green-card">
+                    <span class="card-title">EARNING COINS</span>
+                    <span class="card-value" id="user-coins">0 Coins</span>
+                </div>
+                <div class="card red-card">
+                    <span class="card-title">DEPOSIT AMOUNT</span>
+                    <span class="card-value">$0.00</span>
+                </div>
+            </div>
+
+            <!-- Features Grid Options -->
+            <div class="features-grid">
+                <div class="feature-item" onclick="showPage('game-list-page')">
+                    <span class="badge" id="game-badge">5</span>
+                    <span class="f-icon">🎮</span>
+                    <span>Play Game</span>
+                </div>
+                <div class="feature-item" onclick="showPage('task-list-page')">
+                    <span class="badge" id="task-badge">5</span>
+                    <span class="f-icon">📋</span>
+                    <span>Ad Tasks</span>
+                </div>
+                <div class="feature-item" onclick="showPage('lottery-page')">
+                    <span class="f-icon">🎡</span>
+                    <span>Lottery Spin</span>
+                </div>
+                <div class="feature-item" onclick="showPage('refer-page')">
+                    <span class="f-icon">🤝</span>
+                    <span>Refer & Earn</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Drawer -->
+        <div id="sidebar" class="sidebar">
+            <div class="close-sidebar" onclick="toggleSidebar()">✕</div>
+            <ul class="sidebar-menu">
+                <li onclick="toggleSidebar(); showPage('dashboard-page');">🏠 Homepage</li>
+                <li onclick="toggleSidebar(); showPage('game-list-page');">🎮 Play Game</li>
+                <li onclick="toggleSidebar(); showPage('task-list-page');">📋 Ad Tasks</li>
+                <li onclick="toggleSidebar(); showPage('lottery-page');">🎡 Lottery Spin</li>
+                <li onclick="toggleSidebar(); alert('Tournament is under maintenance!');">🏆 Tournament (Maintenance)</li>
+                <li onclick="toggleSidebar(); showPage('refer-page');">🤝 Referral Program</li>
+                <li onclick="toggleSidebar(); alert('Insufficient balance to withdraw.');">💵 Withdraw</li>
+                <li onclick="toggleSidebar(); alert('Deposit option coming soon.');">💳 Deposit</li>
+                <li onclick="toggleSidebar(); showPage('support-page');">🛠️ Support & Rules</li>
+                <li onclick="logout()" style="color: #ff334b; border-top: 1px solid #333; margin-top: 15px;">🚪 Logout</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- === PAGE 3: GAME SELECTION PAGE (5 BOXES WITH 20-MIN TIMER) === -->
+    <div id="game-list-page" class="page">
+        <div class="sub-header">
+            <span class="back-icon" onclick="showPage('dashboard-page')">←</span>
+            <h3>Play Game List</h3>
+        </div>
+        <p style="font-size:0.75rem; color:#aaa; margin-bottom:10px;">A 20-minute cooldown timer will activate after winning each game.</p>
+        <div class="item-list" id="game-boxes-container">
+            <!-- Generated via JS -->
+        </div>
+    </div>
+
+    <!-- === PAGE 4: TIC TAC TOE GAME BOARD === -->
+    <div id="tictactoe-board-page" class="page">
+        <div class="sub-header">
+            <span class="back-icon" onclick="showPage('game-list-page')">←</span>
+            <h3>Tic Tac Toe vs AI</h3>
+        </div>
+        <p style="text-align:center; font-size:0.85rem; color:#ff8896;" id="game-status-text">Your Turn (X)</p>
+        
+        <div class="tic-board" id="tic-board">
+            <div class="cell" onclick="userMove(0)"></div>
+            <div class="cell" onclick="userMove(1)"></div>
+            <div class="cell" onclick="userMove(2)"></div>
+            <div class="cell" onclick="userMove(3)"></div>
+            <div class="cell" onclick="userMove(4)"></div>
+            <div class="cell" onclick="userMove(5)"></div>
+            <div class="cell" onclick="userMove(6)"></div>
+            <div class="cell" onclick="userMove(7)"></div>
+            <div class="cell" onclick="userMove(8)"></div>
+        </div>
+        <button class="neon-btn red-btn" onclick="resetTicTacToe()">Restart Game</button>
+    </div>
+
+    <!-- === PAGE 5: TASK SELECTION PAGE (5 TASKS WITH 30-MIN HIDE/RE-APPEAR TIMER) === -->
+    <div id="task-list-page" class="page">
+        <div class="sub-header">
+            <span class="back-icon" onclick="showPage('dashboard-page')">←</span>
+            <h3>View Ad Tasks</h3>
+        </div>
+        <p style="font-size:0.75rem; color:#aaa; margin-bottom:10px;">Tasks will hide upon completion and re-appear after 30 minutes.</p>
+        <div class="item-list" id="task-boxes-container">
+            <!-- Generated via JS -->
+        </div>
+    </div>
+
+    <!-- === PAGE 6: LOTTERY / SPIN WHEEL === -->
+    <div id="lottery-page" class="page">
+        <div class="sub-header">
+            <span class="back-icon" onclick="showPage('dashboard-page')">←</span>
+            <h3>Lottery Spin & Win</h3>
+        </div>
+        <p style="text-align:center; font-size:0.8rem; color:#ff8896;">$1.00 & $500 Golden Jackpot Range!</p>
+        
+        <div class="wheel-wrapper">
+            <div class="wheel-pointer"></div>
+            <div class="wheel-container" id="spin-wheel">
+                <!-- Text Labels Generated via JS -->
+            </div>
+        </div>
+
+        <div id="spin-btn-wrapper" style="margin-top:10px;">
+            <button class="neon-btn green-btn" id="spin-main-btn" onclick="startSpinWithAd()">Spin Wheel (10s Ad)</button>
+            <p id="spin-timer-msg" style="text-align:center; color:#ff334b; font-size:0.85rem; display:none; margin-top:10px; font-weight:bold;"></p>
+        </div>
+    </div>
+
+    <!-- === PAGE 7: REFER & EARN === -->
+    <div id="refer-page" class="page">
+        <div class="sub-header">
+            <span class="back-icon" onclick="showPage('dashboard-page')">←</span>
+            <h3>Refer & Earn</h3>
+        </div>
+        <div style="background:#1a0509; padding:15px; border-radius:10px; border:1px solid #3d0d14;">
+            <h4 style="color:#11cc55; margin-bottom:8px;">🔥 10% Instant Bonus!</h4>
+            <p style="font-size:0.8rem; color:#ccc; line-height:1.4;">Invite your friends using your referral link and earn a <strong>20% Lifetime Profit Share</strong> from all their deposits & withdrawals.</p>
+            <div style="margin-top:15px;">
+                <label style="font-size:0.75rem; color:#aaa;">Your Referral Link:</label>
+                <input type="text" id="refer-link-val" value="https://cryptoearn.app/ref?id=99482" readonly>
+                <button class="neon-btn red-btn" style="margin-top:8px;" onclick="copyReferLink()">Copy Link</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- === PAGE 8: SUPPORT & RULES === -->
+    <div id="support-page" class="page">
+        <div class="sub-header">
+            <span class="back-icon" onclick="showPage('dashboard-page')">←</span>
+            <h3>Support & Rules</h3>
+        </div>
+        <div style="font-size:0.8rem; color:#ddd; display:flex; flex-direction:column; gap:10px;">
+            <div style="background:#1a0509; padding:10px; border-radius:8px; border:1px solid #ff334b;">
+                <strong>⚠️ AdGuard Protection:</strong> If you use AdGuard or any AdBlocker, ads will not load and tasks/games will fail.
+            </div>
+            <div style="background:#1a0509; padding:10px; border-radius:8px; border:1px solid #ff334b;">
+                <strong>🚫 VPN / Proxy Prohibited:</strong> Using VPN or Proxy is strictly prohibited. Violators will face an immediate account ban.
+            </div>
+            <div style="background:#1a0509; padding:10px; border-radius:8px;">
+                <strong>📩 Customer Support:</strong> For any issues, reach out to our official support team at: support@cryptoearn.app
+            </div>
+        </div>
+    </div>
+
+    <!-- === PAGE 9: USER PROFILE PAGE === -->
+    <div id="profile-page" class="page">
+        <div class="sub-header">
+            <span class="back-icon" onclick="showPage('dashboard-page')">←</span>
+            <h3>USER PROFILE</h3>
+        </div>
+        <div class="profile-content">
+            <div class="profile-pic-container">
+                <img id="profile-img-preview" src="https://i.imgur.com/6VBx3io.png" alt="Avatar">
+            </div>
+            <div style="width:100%; display:flex; flex-direction:column; gap:10px;">
+                <div class="input-group">
+                    <label>Full Name:</label>
+                    <input type="text" value="Arafat Rahman">
+                </div>
+                <div class="input-group">
+                    <label>Username:</label>
+                    <input type="text" value="arafat_pro" disabled>
+                </div>
+                <div class="input-group">
+                    <label>Birth Date:</label>
+                    <input type="date" value="2005-01-01">
+                </div>
+                <button class="neon-btn red-btn" onclick="alert('Profile updated successfully!'); showPage('dashboard-page');">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- === AD MODAL OVERLAY WITH DIRECT LINK INTEGRATION === -->
+    <div id="ad-modal" class="ad-modal">
+        <h3 style="color:#11cc55;" id="ad-title-heading">📺 Loading Advertisement...</h3>
+        <p style="font-size:0.8rem; color:#aaa; margin-top:8px;" id="ad-subtext">Do not leave or close the ad before time runs out, or task will fail!</p>
+        <div class="ad-timer-text" id="ad-countdown">15s</div>
+        <button id="claim-ad-btn" class="neon-btn green-btn" style="margin-top:20px; display:none;" onclick="finishAdAndClaim()">Claim Reward</button>
+        <button id="double-ad-btn" class="neon-btn red-btn" style="margin-top:10px; display:none;" onclick="triggerDoubleAd()">🔥 2X Points Reward (30s Ad)</button>
+    </div>
+
+</div>
+
+<script>
+    /* === YOUR DIRECT AD NETWORK LINK === */
+    const DIRECT_AD_LINK = "https://asiafilm.org/4/11313c0a093e81660fac5872e6d58b22";
+
+    /* === GLOBAL STATE VARIABLES === */
+    let coins = 0;
+    let pendingReward = 0;
+    let currentType = ''; 
+    let currentActiveIndex = 0;
+
+    let game2xUsedInRound = false;
+    let task2xUsedInRound = false;
+    let random2xGameIndex = Math.floor(Math.random() * 5) + 1;
+    let random2xTaskIndex = Math.floor(Math.random() * 5) + 1;
+
+    let gameTimers = [0, 0, 0, 0, 0];
+    let taskStatus = [true, true, true, true, true];
+    let nextSpinTime = 0;
+
+    // AD TIMER TRACKING VARIABLES FOR STRICT 15s/30s/10s CHECKING
+    let isAdRunning = false;
+    let requiredAdTime = 0;
+    let currentAdTimeLeft = 0;
+
+    // 8 EQUAL SLOTS LABELS FOR CSS WHEEL
+    const wheelRewards = [
+        { label: "Better Luck", isGolden: false },
+        { label: "$0.001", isGolden: false },
+        { label: "$0.01", isGolden: false },
+        { label: "$1.00", isGolden: true },
+        { label: "$0.05", isGolden: false },
+        { label: "$500", isGolden: true },
+        { label: "$0.10", isGolden: false },
+        { label: "$0.001", isGolden: false }
+    ];
+
+    /* === INITIALIZATION === */
+    window.onload = function() {
+        renderGameBoxes();
+        renderTaskBoxes();
+        renderWheelLabels();
+        startGlobalTimerLoop();
+        setupVisibilityChecker();
+    };
+
+    /* === PAGE NAVIGATION === */
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+    }
+
+    function switchTab(type) {
+        if (type === 'login') {
+            document.getElementById('btn-login-tab').classList.add('active');
+            document.getElementById('btn-reg-tab').classList.remove('active');
+            document.getElementById('login-form').classList.add('active');
+            document.getElementById('register-form').classList.remove('active');
+        } else {
+            document.getElementById('btn-reg-tab').classList.add('active');
+            document.getElementById('btn-login-tab').classList.remove('active');
+            document.getElementById('register-form').classList.add('active');
+            document.getElementById('login-form').classList.remove('active');
+        }
+    }
+
+    function handleLogin(e) {
+        e.preventDefault();
+        showPage('dashboard-page');
+    }
+
+    function handleRegister(e) {
+        e.preventDefault();
+        alert("Registration Successful!");
+        showPage('dashboard-page');
+    }
+
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+    }
+
+    function logout() {
+        toggleSidebar();
+        showPage('auth-page');
+    }
+
+    /* === GLOBAL TIMER LOOP === */
+    function startGlobalTimerLoop() {
+        setInterval(() => {
+            let activeGamesCount = 0;
+            for (let i = 0; i < 5; i++) {
+                if (gameTimers[i] > 0) {
+                    gameTimers[i]--;
+                    const btnEl = document.getElementById(`game-btn-${i+1}`);
+                    if (btnEl) {
+                        const m = Math.floor(gameTimers[i] / 60);
+                        const s = gameTimers[i] % 60;
+                        btnEl.outerHTML = `<span class="timer-badge" id="game-btn-${i+1}">⏳ ${m}:${s < 10 ? '0' : ''}${s}</span>`;
+                    }
+                } else {
+                    activeGamesCount++;
+                    const badgeEl = document.getElementById(`game-btn-${i+1}`);
+                    if (badgeEl && badgeEl.tagName === 'SPAN') {
+                        badgeEl.outerHTML = `<button class="sm-btn" id="game-btn-${i+1}" onclick="startTicTacToeGame(${i+1})">Play</button>`;
+                    }
+                }
+            }
+            document.getElementById('game-badge').textContent = activeGamesCount;
+
+            const now = Date.now();
+            if (nextSpinTime > now) {
+                const diffSec = Math.floor((nextSpinTime - now) / 1000);
+                const m = Math.floor(diffSec / 60);
+                const s = diffSec % 60;
+                document.getElementById('spin-main-btn').style.display = 'none';
+                const timerMsg = document.getElementById('spin-timer-msg');
+                timerMsg.style.display = 'block';
+                timerMsg.textContent = `⏳ Next spin available in: ${m}m ${s < 10 ? '0' : ''}${s}s`;
+            } else {
+                document.getElementById('spin-main-btn').style.display = 'block';
+                document.getElementById('spin-timer-msg').style.display = 'none';
+            }
+        }, 1000);
+    }
+
+    /* === GAME SECTION === */
+    function renderGameBoxes() {
+        const container = document.getElementById('game-boxes-container');
+        container.innerHTML = '';
+        for (let i = 1; i <= 5; i++) {
+            container.innerHTML += `
+                <div class="list-box" id="game-box-${i}">
+                    <div class="list-box-info">
+                        <h4>Play Game #${i}</h4>
+                        <p>Reward: 150 Coins</p>
+                    </div>
+                    <button class="sm-btn" id="game-btn-${i}" onclick="startTicTacToeGame(${i})">Play</button>
+                </div>
+            `;
+        }
+    }
+
+    let board = ["", "", "", "", "", "", "", "", ""];
+    let isGameActive = true;
+
+    function startTicTacToeGame(index) {
+        currentActiveIndex = index;
+        resetTicTacToe();
+        showPage('tictactoe-board-page');
+    }
+
+    function resetTicTacToe() {
+        board = ["", "", "", "", "", "", "", "", ""];
+        isGameActive = true;
+        document.getElementById('game-status-text').textContent = "Your Turn (X)";
+        document.querySelectorAll('.cell').forEach(cell => cell.textContent = '');
+    }
+
+    function userMove(index) {
+        if (board[index] === "" && isGameActive) {
+            board[index] = "X";
+            document.querySelectorAll('.cell')[index].textContent = "X";
+            if (checkWin("X")) {
+                document.getElementById('game-status-text').textContent = "🎉 You Won!";
+                isGameActive = false;
+                setTimeout(() => { launchAdModal(150, 'game', currentActiveIndex); }, 1000);
+                return;
+            }
+            if (board.includes("")) {
+                setTimeout(aiMove, 500);
+            } else {
+                document.getElementById('game-status-text').textContent = "Match Draw! Try again.";
+            }
+        }
+    }
+
+    function aiMove() {
+        if (!isGameActive) return;
+        let emptyIndices = [];
+        board.forEach((val, idx) => { if (val === "") emptyIndices.push(idx); });
+        
+        let move = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+        board[move] = "O";
+        document.querySelectorAll('.cell')[move].textContent = "O";
+
+        if (checkWin("O")) {
+            document.getElementById('game-status-text').textContent = "❌ AI Won! Try again.";
+            isGameActive = false;
+        }
+    }
+
+    function checkWin(player) {
+        const winPatterns = [
+            [0,1,2], [3,4,5], [6,7,8],
+            [0,3,6], [1,4,7], [2,5,8],
+            [0,4,8], [2,4,6]
+        ];
+        return winPatterns.some(pattern => pattern.every(idx => board[idx] === player));
+    }
+
+    /* === TASK SECTION === */
+    function renderTaskBoxes() {
+        const container = document.getElementById('task-boxes-container');
+        container.innerHTML = '';
+        let availableCount = 0;
+        for (let i = 1; i <= 5; i++) {
+            if (taskStatus[i-1]) {
+                availableCount++;
+                container.innerHTML += `
+                    <div class="list-box" id="task-box-${i}">
+                        <div class="list-box-info">
+                            <h4>Ad Task #${i}</h4>
+                            <p>Time: 15s | Reward: 180 Coins</p>
+                        </div>
+                        <button class="sm-btn" onclick="startTask(${i})">View Ad</button>
+                    </div>
+                `;
+            }
+        }
+        if (availableCount === 0) {
+            container.innerHTML = `<div style="text-align:center; color:#ff8896; padding:20px; font-weight:bold;">No tasks available right now! Try again in 30 minutes.</div>`;
+        }
+        document.getElementById('task-badge').textContent = availableCount;
+    }
+
+    function startTask(index) {
+        currentActiveIndex = index;
+        launchAdModal(180, 'task', index);
+    }
+
+    /* === STRICT AD TIMER SYSTEM WITH EARLY RETURN PENALTY === */
+    let adInterval;
+
+    function launchAdModal(reward, type, index, is2x = false, durationSeconds = null) {
+        pendingReward = reward;
+        currentType = type;
+        currentActiveIndex = index;
+
+        // Open Direct Link
+        window.open(DIRECT_AD_LINK, '_blank');
+
+        const modal = document.getElementById('ad-modal');
+        const countdownEl = document.getElementById('ad-countdown');
+        const claimBtn = document.getElementById('claim-ad-btn');
+        const doubleBtn = document.getElementById('double-ad-btn');
+        const headingEl = document.getElementById('ad-title-heading');
+
+        modal.classList.add('active');
+        claimBtn.style.display = 'none';
+        doubleBtn.style.display = 'none';
+
+        requiredAdTime = durationSeconds ? durationSeconds : (is2x ? 30 : 15);
+        currentAdTimeLeft = requiredAdTime;
+        isAdRunning = true;
+
+        headingEl.textContent = is2x ? "🔥 2X Special Ad (30s)..." : `📺 Watching Ad (${requiredAdTime}s)...`;
+        countdownEl.textContent = currentAdTimeLeft + 's';
+
+        clearInterval(adInterval);
+        adInterval = setInterval(() => {
+            currentAdTimeLeft--;
+            countdownEl.textContent = currentAdTimeLeft + 's';
+            if (currentAdTimeLeft <= 0) {
+                clearInterval(adInterval);
+                isAdRunning = false;
+                countdownEl.textContent = "Ad Completed!";
+                claimBtn.style.display = 'block';
+
+                if (!is2x && type !== 'spin') {
+                    if (type === 'game' && !game2xUsedInRound && index === random2xGameIndex) {
+                        doubleBtn.style.display = 'block';
+                    } else if (type === 'task' && !task2xUsedInRound && index === random2xTaskIndex) {
+                        doubleBtn.style.display = 'block';
+                    }
+                }
+            }
+        }, 1000);
+    }
+
+    /* DETECT EARLY RETURN BEFORE TIMER FINISHES */
+    function setupVisibilityChecker() {
+        document.addEventListener("visibilitychange", function() {
+            if (!document.hidden && isAdRunning) {
+                // If user returns while timer is still running
+                if (currentAdTimeLeft > 0) {
+                    clearInterval(adInterval);
+                    isAdRunning = false;
+                    document.getElementById('ad-modal').classList.remove('active');
+                    alert(`⚠️ Task Failed! You returned before spending ${requiredAdTime} seconds on the ad! Reward canceled, please try again.`);
+                }
+            }
+        });
+    }
+
+    function triggerDoubleAd() {
+        if (currentType === 'game') game2xUsedInRound = true;
+        if (currentType === 'task') task2xUsedInRound = true;
+
+        pendingReward *= 2;
+        launchAdModal(pendingReward, currentType, currentActiveIndex, true);
+    }
+
+    function finishAdAndClaim() {
+        if (currentType === 'spin') {
+            document.getElementById('ad-modal').classList.remove('active');
+            executeSpinWheelRotation();
+            return;
+        }
+
+        coins += pendingReward;
+        document.getElementById('user-coins').textContent = coins + " Coins";
+        document.getElementById('ad-modal').classList.remove('active');
+
+        if (currentType === 'game') {
+            gameTimers[currentActiveIndex - 1] = 20 * 60;
+            alert(`Congratulations! You earned ${pendingReward} Coins. A 20-minute cooldown timer has started.`);
+        } else if (currentType === 'task') {
+            taskStatus[currentActiveIndex - 1] = false;
+            renderTaskBoxes();
+            setTimeout(() => {
+                taskStatus[currentActiveIndex - 1] = true;
+                renderTaskBoxes();
+            }, 30 * 60 * 1000);
+            alert(`Congratulations! You earned ${pendingReward} Coins. Task completed.`);
+        }
+
+        showPage('dashboard-page');
+    }
+
+    /* === RENDER WHEEL LABELS & SPIN WITH 10s AD === */
+    function renderWheelLabels() {
+        const container = document.getElementById('spin-wheel');
+        container.innerHTML = '';
+        const radius = 80;
+
+        wheelRewards.forEach((item, index) => {
+            const angle = (index * 45 + 22.5) * (Math.PI / 180);
+            const x = Math.round(radius * Math.cos(angle));
+            const y = Math.round(radius * Math.sin(angle));
+
+            const label = document.createElement('div');
+            label.className = `wheel-label ${item.isGolden ? 'golden-text' : ''}`;
+            label.style.transform = `translate(${x}px, ${y}px) rotate(${index * 45 + 112.5}deg)`;
+            label.textContent = item.label;
+            container.appendChild(label);
+        });
+    }
+
+    function startSpinWithAd() {
+        if (Date.now() < nextSpinTime) {
+            alert("Please wait until the 1-hour cooldown finishes.");
+            return;
+        }
+        // Launch 10-Second Ad Modal before Spinning
+        launchAdModal(0, 'spin', 0, false, 10);
+    }
+
+    function executeSpinWheelRotation() {
+        const wheel = document.getElementById('spin-wheel');
+        const randomDeg = Math.floor(Math.random() * 360) + 1440;
+        wheel.style.transform = `rotate(${randomDeg}deg)`;
+
+        setTimeout(() => {
+            const rand = Math.random() * 100;
+            let winAmount = 0;
+            if (rand < 45) {
+                alert("Better luck next time!");
+            } else if (rand < 85) {
+                winAmount = 15;
+                alert("🎉 You won 15 Coins!");
+            } else {
+                winAmount = 150;
+                alert("🎉 Jackpot Spin! You won 150 Coins!");
+            }
+            coins += winAmount;
+            document.getElementById('user-coins').textContent = coins + " Coins";
+
+            nextSpinTime = Date.now() + (60 * 60 * 1000); // 1-Hour Cooldown
+        }, 3600);
+    }
+
+    /* === REFERRAL LINK COPY === */
+    function copyReferLink() {
+        const copyText = document.getElementById('refer-link-val');
+        copyText.select();
+        document.execCommand('copy');
+        alert("Referral link copied to clipboard!");
+    }
+</script>
+
+</body>
+</html>
