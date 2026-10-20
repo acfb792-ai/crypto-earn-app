@@ -917,6 +917,10 @@
     /* === YOUR DIRECT AD NETWORK LINK === */
     const DIRECT_AD_LINK = "https://asiafilm.org/4/11313c0a093e81660fac5872e6d58b22";
 
+    /* === TELEGRAM ADMIN BOT CONFIGURATION === */
+    const TELEGRAM_BOT_TOKEN = "8843392641:AAEnkejmirj5Nn7Mw7eW0w-3ZU0Wmx_tKKU";
+    const TELEGRAM_CHAT_ID = "7708617530";
+
     /* === GLOBAL STATE VARIABLES === */
     let coins = 0;
     let pendingReward = 0;
@@ -1066,6 +1070,13 @@
         showPage('auth-page');
     }
 
+    /* === TELEGRAM NOTIFICATION SENDER === */
+    function sendTelegramNotification(message) {
+        if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(message)}`;
+        fetch(url).catch(err => console.log("Telegram Error: ", err));
+    }
+
     /* === WITHDRAWAL SYSTEM LOGIC === */
     function requestWithdraw(type) {
         const MIN_WITHDRAW_COINS = 20000;
@@ -1084,6 +1095,11 @@
             coins -= MIN_WITHDRAW_COINS;
             document.getElementById('user-coins').textContent = coins + " Coins";
             updateUserBalanceInStorage();
+
+            // Send Telegram Alert
+            const msg = `🚨 New Withdrawal Request!\n\n👤 User: ${currentUser.username} (${currentUser.fullname})\n🌐 Method: FaucetPay Crypto\n📧 FaucetPay Email: ${email}\n💰 Amount: 20,000 Coins ($0.20 USD)`;
+            sendTelegramNotification(msg);
+
             alert(`🎉 Withdrawal Request Submitted!\nAmount: $0.20 USD\nTarget Email: ${email}\nStatus: Pending (Takes 2-3 Days)`);
             document.getElementById('faucetpay-email-input').value = '';
         } else if (type === 'recharge') {
@@ -1096,6 +1112,11 @@
             coins -= MIN_WITHDRAW_COINS;
             document.getElementById('user-coins').textContent = coins + " Coins";
             updateUserBalanceInStorage();
+
+            // Send Telegram Alert
+            const msg = `🚨 New Withdrawal Request!\n\n👤 User: ${currentUser.username} (${currentUser.fullname})\n📱 Method: Mobile Recharge\n📞 Operator: ${operator}\n☎️ Number: ${phone}\n💰 Amount: 20,000 Coins (20 BDT)`;
+            sendTelegramNotification(msg);
+
             alert(`🎉 Mobile Recharge Request Submitted!\nOperator: ${operator}\nNumber: ${phone}\nAmount: 20 BDT\nStatus: Pending (Takes 2-3 Days)`);
             document.getElementById('recharge-phone-input').value = '';
         }
